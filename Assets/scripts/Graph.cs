@@ -3,38 +3,50 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
-    [SerializeField] private Transform pointPrefab;
+    [SerializeField] private Transform m_PointPrefab;
 
-    [SerializeField, Range(10, 500)] private int resolution = 10;
+    [SerializeField, Range(10, 500)] private int m_Resolution = 10;
+    private int m_PreviousResolution;
 
-    Transform[] points;
+    private Transform[] m_Points;
 
     private void Awake()
     {
-        float step = 2.0f / resolution;
+        m_PreviousResolution = m_Resolution;
+        float step = 2.0f / m_PreviousResolution;
         Vector3 position = Vector3.zero;
         Vector3 scale = Vector3.one * step;
-        points = new Transform[resolution];
+        m_Points = new Transform[m_PreviousResolution];
 
-        for (int i = 0; i < points.Length; i++)
+        for (int i = 0; i < m_Points.Length; i++)
         {
-            points[i] = Instantiate(pointPrefab);
+            m_Points[i] = Instantiate(m_PointPrefab);
             position.x = (i + 0.5f) * step - 1;
-            points[i].localPosition = position;
-            points[i].localScale = scale;
-            points[i].SetParent(transform, false);
+            m_Points[i].localPosition = position;
+            m_Points[i].localScale = scale;
+            m_Points[i].SetParent(transform, false);
         }
     }
 
     void Update()
     {
+        if (m_PreviousResolution != m_Resolution)
+        {
+            for (int i = 0; i < m_Points.Length; i++)
+            {
+                Destroy(m_Points[i].gameObject);
+            }
+
+            Awake();
+        }
+
         float timeNow = Time.time;
 
-        for (int i = 0; i < points.Length; i++)
+        for (int i = 0; i < m_Points.Length; i++)
         {
-            Vector3 position = points[i].localPosition;
+            Vector3 position = m_Points[i].localPosition;
             position.y = Mathf.Sin(Mathf.PI * (position.x + timeNow));
-            points[i].localPosition = position;
+            m_Points[i].localPosition = position;
         }
     }
 }
